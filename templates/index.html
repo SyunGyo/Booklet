@@ -1,0 +1,34 @@
+<html lang="ja">
+  <head>
+    <title>PDFを小冊子に</title>
+    <link rel="stylesheet" href="static/css/base.css">
+    <link href="static/css/bootstrap.css" rel="stylesheet">  
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  </head>
+<body class="bg-light">
+
+
+  <div class="container">
+    <main>
+      <div class="py-5 text-center">
+        <img class="d-block mx-auto mb-4" src="static/booklet.png" alt="" width="100" height="70">
+        <h2>PDFを小冊子に</h2>
+        <p class="lead">PDFファイルのページを小冊子の順番に並び変えます</p>
+        <p class="lead">
+        並び変えたいファイルをドラッグ&ドロップ<br>そしてプレビューボタンをおすだけ</p>
+        <!-- <p class="lead">印刷は短辺とじで行ってください</p> -->
+      </div>
+  <div id="upload_form" style="width:400px; height:300px; margin-left:auto; margin-right:auto; text-align:center;" ondrop="drop_handler(event)" ondragover="dragover_handler(event)"> 
+  <div class="form">
+    <div class="d-flex align-items-center justify-content-center" style="margin-top:auto; margin-bottom:auto; height:300px">
+      <p style="font-size:30px; font-weight:300;">PDFをドラッグ&ドロップ</p>
+    </div>
+  </div>
+</div>
+
+
+  <script src="static/js/bootstrap.bundle.min.js"></script>
+  <script src="static/js/form-validation.js"></script>
+  <script src="static/js/script.js"> </script>
+</body>
+</html>
