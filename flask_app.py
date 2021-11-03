@@ -3,14 +3,14 @@ from flask import Flask, request, redirect, render_template
 from werkzeug.utils import secure_filename
 import PDF_To_Booklet as PTB
 import os
-app = Flask(__name__,
-            template_folder='./template/',
-            static_folder='./static/')
+app = Flask(__name__)
 
 
 @app.route('/')
 def index_html():
-    return render_template('index.html')
+    return render_template('index.html',
+            template_folder='./template/',
+            static_folder='./static/')
 
 @app.route('/upload', methods=['POST'])
 def save_file():
