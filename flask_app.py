@@ -3,7 +3,9 @@ from flask import Flask, request, redirect, render_template
 from werkzeug.utils import secure_filename
 import PDF_To_Booklet as PTB
 import os
-app = Flask(__name__)
+app = Flask(__name__,
+            template_folder='./template/',
+            static_folder='./static/')
 
 
 @app.route('/')
