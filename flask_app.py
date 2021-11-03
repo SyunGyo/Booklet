@@ -8,7 +8,7 @@ app = Flask(__name__)
 @app.route('/')
 def index_html():
     return render_template('index.html',
-            template_folder='./template/',
+            template_folder='./templates/',
             static_folder='./static/')
 
 @app.route('/upload', methods=['POST'])
