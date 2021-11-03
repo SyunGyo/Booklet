@@ -14,7 +14,6 @@ def index_html():
 @app.route('/upload', methods=['POST'])
 def save_file():
     file = request.files['file']
-    filename = secure_filename(file.filename)
 
     upload_path= "./static/pdf/uploaded.pdf"
     file.save(upload_path)
