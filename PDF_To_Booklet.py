@@ -20,5 +20,9 @@ def Make_Booklet(pdf_path,output_path):
         booklet.addPage(pdf_writer.getPage(int(2 * i + 1)))
         booklet.addPage(pdf_writer.getPage(int(Num_Pages - 2 * i - 2)))
 
+    if(os.path.isfile(output_path)):
+        os.remove(output_path)
+
+
     with open(output_path, 'wb') as fh:
         booklet.write(fh)

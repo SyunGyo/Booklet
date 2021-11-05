@@ -25,13 +25,11 @@ function drop_handler(ev) {
     );
 
     $("#upload_form").load("/static/button.html");
-    /*
-    var xmlhttp = new XMLHttpRequest();
-    xmlhttp.open("GET","/static/button.html",true);
-    
-    var data = xmlhttp.responseText;
-    console.log(data);
-    document.getElementById("upload_form").innerHTML = data;
-    xmlhttp.send(null);
-    */
+}
+
+window.onbeforeunload = function (event){
+    event.preventDefault();
+    fetch('/delete').then(response => {})
+                    .then(json => {})
+                    .catch(error => console.error(error));
 }

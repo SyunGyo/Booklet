@@ -4,6 +4,17 @@
     <link rel="stylesheet" href="static/css/base.css">
     <link href="static/css/bootstrap.css" rel="stylesheet">  
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <script>
+      window.onload = function(){
+        window.onunload = function (event){
+            event.preventDefault();
+            fetch('/delete').then(response => {})
+                            .then(json => {})
+                            .catch(error => console.error(error));
+        }
+      }
+    </script>
   </head>
 <body class="bg-light">
 
