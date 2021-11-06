@@ -4,7 +4,10 @@ import PDF_To_Booklet as PTB
 import os
 
 app = Flask(__name__)
+
 pdf_dir = os.path.dirname(__file__)
+upload_path= os.path.join(pdf_dir,'static','pdf','uploaded.pdf')
+pdf_path = os.path.join(pdf_dir,'static','pdf','booklet.pdf')
 
 @app.route('/')
 def index_html():
@@ -16,13 +19,8 @@ def index_html():
 def save_file():
     file = request.files['file']
 
-    print(pdf_dir)
 
-    upload_path= os.path.join(pdf_dir,'static','pdf','uploaded.pdf')
-    pdf_path = os.path.join(pdf_dir,'static','pdf','booklet.pdf')
 
-    print(upload_path)
-    print(pdf_path)
 
     if(os.path.isfile(upload_path)):
         os.remove(upload_path)
@@ -33,11 +31,11 @@ def save_file():
 
 @app.route('/delete')
 def delete_file():
-    if(os.path.isfile('./static/pdf/uploaded.pdf')):
-        os.remove('./static/pdf/uploaded.pdf')
+    if(os.path.isfile(upload_path)):
+        os.remove(upload_path)
 
-    if(os.path.isfile('./static/pdf/booklet.pdf')):
-        os.remove('./static/pdf/booklet.pdf')
+    if(os.path.isfile(pdf_path)):
+        os.remove(pdf_path)
 
     return redirect("/")
 
