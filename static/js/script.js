@@ -61,6 +61,15 @@ function preview(){
     let download_name = new FormData();
     download_name.set('filename', filename);
 
+    let messageForm = ElementWithAttList("div", [["class", "messageForm"]]);
+    let message = ElementWithAttList("p", [["style", "font-size:30px; font-weight:300"],["id","message"]]);
+    message.appendChild(document.createTextNode("ダウンロード中..."));
+    messageForm.appendChild(message);
+
+    let form = document.getElementById("upload_form");
+    form.innerHTML = "";
+    form.appendChild(messageForm);
+
     fetch('/download',{method:'POST', body: download_name})
     .then(
         response => response.blob()
@@ -68,18 +77,9 @@ function preview(){
         blob => {
             url = URL.createObjectURL(blob);
             window.open(url);
+            document.getElementById("message").innerHTML = "PDFをドラッグ&ドロップ";
         }
     )
-
-    //ダウンロードした後のhtmlを作成
-    let messageForm = ElementWithAttList("div", [["class", "messageForm"]]);
-    let message = ElementWithAttList("p", [["style", "font-size:30px; font-weight:300"],["id","message"]]);
-    message.appendChild(document.createTextNode("PDFをドラッグ&ドロップ"));
-    messageForm.appendChild(message);
-
-    let form = document.getElementById("upload_form");
-    form.innerHTML = "";
-    form.appendChild(messageForm);
 }
 
 window.onbeforeunload = function (event){
