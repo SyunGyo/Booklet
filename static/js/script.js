@@ -17,7 +17,7 @@ function dragover_handler(ev) {
 
 function drop_handler(ev) {
     ev.preventDefault();
-    document.getElementById("message").innerHTML="アップロード中";
+    document.getElementById("message").innerHTML="アップロード中...";
 
 
     const file = ev.dataTransfer.items[0].getAsFile();
