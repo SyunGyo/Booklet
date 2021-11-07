@@ -9,9 +9,7 @@
       window.onload = function(){
         window.onunload = function (event){
             event.preventDefault();
-            fetch('/delete').then(response => {})
-                            .then(json => {})
-                            .catch(error => console.error(error));
+            fetch('/delete')
         }
       }
     </script>
@@ -26,7 +24,7 @@
         <h2>PDFを小冊子に</h2>
         <p class="lead">PDFファイルのページを小冊子の順番に並び変えます</p>
         <p class="lead">
-        並び変えたいファイルをドラッグ&ドロップ<br>そしてプレビューボタンをおすだけ</p>
+        並び変えたいファイルをドラッグ&ドロップ<br>そしてダウンロードボタンをおすだけ</p>
         <!-- <p class="lead">印刷は短辺とじで行ってください</p> -->
       </div>
   <div id="upload_form" style="width:400px; height:300px; margin-left:auto; margin-right:auto; text-align:center;" ondrop="drop_handler(event)" ondragover="dragover_handler(event)"> 
