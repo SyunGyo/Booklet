@@ -1,44 +1,72 @@
-from flask import Flask, request, redirect, render_template
+from flask import Flask, make_response, request, redirect, render_template
 from werkzeug.utils import secure_filename
 import PDF_To_Booklet as PTB
 import os
 
 app = Flask(__name__)
 
-pdf_dir = os.path.dirname(__file__)
-upload_path= os.path.join(pdf_dir,'static','pdf','uploaded.pdf')
-pdf_path = os.path.join(pdf_dir,'static','pdf','booklet.pdf')
+flask_dir = os.path.dirname(__file__)
+pdf_dir= os.path.join(flask_dir,'static','pdf')
 
 @app.route('/')
 def index_html():
     return render_template('index.html',
-            template_folder='./templates/',
-            static_folder='./static/')
+            template_folder=os.path.join(flask_dir,'templates'),
+            static_folder=os.path.join(flask_dir,'static'))
 
 @app.route('/upload', methods=['POST'])
 def save_file():
     file = request.files['file']
 
-
-
+    upload_path = os.path.join(pdf_dir,file.filename)
+    thumb_path = os.path.join(pdf_dir,'thumb_'+file.filename)
+    booklet_path = os.path.join(pdf_dir,'booklet_'+file.filename)
 
     if(os.path.isfile(upload_path)):
         os.remove(upload_path)
-    file.save(upload_path)
+    if(os.path.isfile(thumb_path)):
+        os.remove(thumb_path)    
+    if(os.path.isfile(booklet_path)):
+        os.remove(booklet_path)
 
-    PTB.Make_Booklet(upload_path,pdf_path)
-    return redirect("/")
+    file.save(upload_path)
+    PTB.Make_Thumb(upload_path,thumb_path)
+    PTB.Make_Booklet(upload_path,booklet_path)
+
+    #PDFの1ページ目をサムネイルとして送りかえす
+    response = make_response()
+    response.data = open(thumb_path,"rb").read()
+    response.mimetype = "application/pdf"
+  
+    return response
+
+@app.route('/download', methods=['POST'])
+def send_booklet():
+    filename = 'booklet_' + request.form['filename']
+    sendfile_path = os.path.join(pdf_dir,filename)
+    
+    response = make_response()
+    response.data = open(sendfile_path,"rb").read()
+    response.mimetype = "application/pdf"
+
+    return response
 
 @app.route('/delete')
 def delete_file():
+    filename = request.form['filename']
+
+    upload_path = os.path.join(pdf_dir,filename)
+    thumb_path = os.path.join(pdf_dir,'thumb_'+filename)
+    booklet_path = os.path.join(pdf_dir,'booklet_'+filename)
+
     if(os.path.isfile(upload_path)):
         os.remove(upload_path)
-
-    if(os.path.isfile(pdf_path)):
-        os.remove(pdf_path)
+    if(os.path.isfile(thumb_path)):
+        os.remove(thumb_path)    
+    if(os.path.isfile(booklet_path)):
+        os.remove(booklet_path)
 
     return redirect("/")
-
-
+    
 if __name__ == '__main__':
     app.run(debug=True)

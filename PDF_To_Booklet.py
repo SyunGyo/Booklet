@@ -26,3 +26,12 @@ def Make_Booklet(pdf_path,output_path):
 
     with open(output_path, 'wb') as fh:
         booklet.write(fh)
+
+def Make_Thumb(pdf_path,Thumb_path):
+    pdf_reader = PdfFileReader(pdf_path)
+    pdf_writer = PdfFileWriter()
+
+    pdf_writer.addPage(pdf_reader.getPage(0))
+
+    with open(Thumb_path,'wb') as fh:
+        pdf_writer.write(fh)
