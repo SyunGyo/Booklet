@@ -42,7 +42,7 @@ def save_file():
 
 @app.route('/download', methods=['POST'])
 def send_booklet():
-    filename = 'booklet_' + request.form['filename']
+    filename = request.form['filename']
     sendfile_path = os.path.join(pdf_dir,filename)
     
     response = make_response()
@@ -51,8 +51,8 @@ def send_booklet():
 
     return response
 
-@app.route('/delete')
-def delete_file():
+@app.route('/refresh',methods=['POST'])
+def refresh_file():
     filename = request.form['filename']
 
     upload_path = os.path.join(pdf_dir,filename)

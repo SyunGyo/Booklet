@@ -1,4 +1,4 @@
-let filename = "";
+let upload_filename = "";
 
 function ElementWithAttList(element_name, list){
     let new_element = document.createElement(element_name);
@@ -10,33 +10,41 @@ function ElementWithAttList(element_name, list){
     return new_element;
 }
 
-function dragover_handler(ev) {
-      ev.preventDefault();
-      ev.dataTransfer.dropEffect = "move";
+function dragover_handler(event) {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = "move";
 }
 
-function drop_handler(ev) {
-    ev.preventDefault();
+function drop_handler(event) {
+    event.preventDefault();
     document.getElementById("message").innerHTML="アップロード中...";
 
+    if (event.dataTransfer.items.length != 1){
+        document.getElementById("message").innerHTML = "ファイルを一つだけドロップして下さい";
+        return;
+    }
 
-    const file = ev.dataTransfer.items[0].getAsFile();
-    filename = file.name;
+    const file = event.dataTransfer.items[0].getAsFile();
+    upload_filename = file.name;
+
+    if(file.type != "application/pdf"){
+        document.getElementById("message").innerHTML = "PDFをドロップしてください";
+        return;
+    }
      
     let data = new FormData();
     data.append('file', file);
 
     fetch('/upload',{method:'POST', body:data})
     .then(
-      response => response.blob()
+      response => response.blob() //PDFの1ページ目が返ってくる
     ).then(
         blob => {
             //レスポンスが返ってきた後のhtmlを作成 
             
-            let url = URL.createObjectURL(blob);//アップロードしたPDFの一枚目のURL
-
+            let url_page1 = URL.createObjectURL(blob);
             let EmbedPDF = ElementWithAttList("embed",[
-                ["src", url], ["type", "application/pdf"],["width", "100%"],["height","80%"]
+                ["src", url_page1], ["type", "application/pdf"],["width", "100%"],["height","80%"]
             ]);
 
             let BackButton = ElementWithAttList("a", [
@@ -50,12 +58,10 @@ function drop_handler(ev) {
             ]);
             BackButton.appendChild(BackButton_image);
 
-            let DownloadButton = ElementWithAttList("a", [
+            let DownloadButton = ElementWithAttList("button", [
                 ["class", "btn btn-outline-secondary btn-sm"], 
                 ["style", "position:absolute; transform:translate(-50%,0%); left:50%; margin-top:5%; "], 
-                ["href", "/static/pdf/booklet_" + filename],
-                ["download",""],
-                ["onclick", "back();"]
+                ["onclick", "download();"]
             ]);               
             DownloadButton.appendChild(document.createTextNode("小冊子をダウンロード"));
 
@@ -64,6 +70,7 @@ function drop_handler(ev) {
             form.appendChild(EmbedPDF);
             form.appendChild(BackButton);
             form.appendChild(DownloadButton);
+            console.log("button is created");
         }
         
     ).catch(
@@ -76,35 +83,50 @@ function back(){
     $("#upload_form").load("/static/drag&drop.html")
 }
 
-function preview(){
-    let download_name = new FormData();
-    download_name.set('filename', filename);
+function download(){
+    console.log("start download");
 
+    //"ダウンロード中..."に画面を切り替える
     let messageForm = ElementWithAttList("div", [["class", "messageForm"]]);
     let message = ElementWithAttList("p", [["style", "font-size:30px; font-weight:300"],["id","message"]]);
     message.appendChild(document.createTextNode("ダウンロード中..."));
     messageForm.appendChild(message);
-
     let form = document.getElementById("upload_form");
     form.innerHTML = "";
     form.appendChild(messageForm);
 
-    fetch('/download',{method:'POST', body: download_name})
+    //ダウンロードを行う
+    let download_form = new FormData();
+    download_form.set('filename', 'booklet_'+ upload_filename);
+
+    fetch('/download',{method:'POST', body: download_form})
     .then(
         response => response.blob()
     ).then(
         blob => {
             url = URL.createObjectURL(blob);
-            window.open(url);
-            document.getElementById("message").innerHTML = "PDFをドラッグ&ドロップ";
+            let download_button =  ElementWithAttList("a", [
+                ["href", url], 
+                ["download", 'booklet_'+ upload_filename]
+            ]);
+            download_button.click();
+            refresh_file(upload_filename);
         }
     )
+    
+    //初期画面へ遷移
+    document.getElementById("message").innerHTML = "PDFをドラッグ&ドロップ";
 }
 
-window.onbeforeunload = function (event){
+function refresh_file(delete_filename){
+    let delete_formdata = new FormData();
+    delete_formdata.set('filename', delete_filename);
+
+    fetch('/refresh',{method:'POST', body:delete_formdata});
+}
+
+$(window).on('beforeunload',function(event){
     event.preventDefault();
-    let download_name = new FormData();
-    download_name.set('filename', filename);
-
-    fetch('/download',{method:'POST', body: download_name})
-}
+    refresh_file(upload_filename);
+    return '';
+});
