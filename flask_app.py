@@ -1,5 +1,5 @@
 from flask import Flask, make_response, request, redirect, render_template
-from werkzeug.utils import secure_filename
+from PyPDF2 import PdfFileReader
 import PDF_To_Booklet as PTB
 import os
 
@@ -17,36 +17,36 @@ def index_html():
 @app.route('/upload', methods=['POST'])
 def save_file():
     file = request.files['file']
+    refresh(file.filename)
 
-    upload_path = os.path.join(pdf_dir,file.filename)
-    thumb_path = os.path.join(pdf_dir,'thumb_'+file.filename)
-    booklet_path = os.path.join(pdf_dir,'booklet_'+file.filename)
+    upload_path = pdf_dir + '/' + file.filename
+    file.save(upload_path)   
 
-    if(os.path.isfile(upload_path)):
-        os.remove(upload_path)
-    if(os.path.isfile(thumb_path)):
-        os.remove(thumb_path)    
-    if(os.path.isfile(booklet_path)):
-        os.remove(booklet_path)
-
-    file.save(upload_path)
-    PTB.Make_Thumb(upload_path,thumb_path)
-    PTB.Make_Booklet(upload_path,booklet_path)
-
-    #PDFの1ページ目をサムネイルとして送りかえす
     response = make_response()
-    response.data = open(thumb_path,"rb").read()
-    response.mimetype = "application/pdf"
-  
+    if(PdfFileReader(upload_path).isEncrypted):        
+        response.data = "暗号化されています"
+        response.mimetype = "text/plain"
+        refresh(file.filename)    
+    else:
+        try:
+            PTB.Make_Thumb(upload_path, pdf_dir + '/thumb_' + file.filename)
+            PTB.Make_Booklet(upload_path, pdf_dir + '/booklet_' + file.filename)
+                #PDFの1ページ目をサムネイルとして送りかえす
+            response.data = open(pdf_dir + '/thumb_' + file.filename,"rb").read()
+            response.mimetype = "application/pdf"
+        except:
+            response.data = "エラー"
+            response.mimetype = "text/plain"
+            refresh(file.filename) 
+
     return response
 
 @app.route('/download', methods=['POST'])
 def send_booklet():
     filename = request.form['filename']
-    sendfile_path = os.path.join(pdf_dir,filename)
     
     response = make_response()
-    response.data = open(sendfile_path,"rb").read()
+    response.data = open(pdf_dir + '/booklet_' + filename,"rb").read()
     response.mimetype = "application/pdf"
 
     return response
@@ -54,19 +54,16 @@ def send_booklet():
 @app.route('/refresh',methods=['POST'])
 def refresh_file():
     filename = request.form['filename']
-
-    upload_path = os.path.join(pdf_dir,filename)
-    thumb_path = os.path.join(pdf_dir,'thumb_'+filename)
-    booklet_path = os.path.join(pdf_dir,'booklet_'+filename)
-
-    if(os.path.isfile(upload_path)):
-        os.remove(upload_path)
-    if(os.path.isfile(thumb_path)):
-        os.remove(thumb_path)    
-    if(os.path.isfile(booklet_path)):
-        os.remove(booklet_path)
+    refresh(filename)
 
     return redirect("/")
+
+def refresh(filename):
+    if(os.path.isfile(pdf_dir + '/' + filename)): os.remove(pdf_dir + '/' + filename)
+    if(os.path.isfile(pdf_dir + '/thumb_' + filename)): os.remove(pdf_dir + '/thumb_' + filename)    
+    if(os.path.isfile(pdf_dir + '/booklet_' + filename)): os.remove(pdf_dir + '/booklet_' + filename)
+    return
     
 if __name__ == '__main__':
+    print(pdf_dir)
     app.run(debug=True)

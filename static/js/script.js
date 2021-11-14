@@ -37,40 +37,58 @@ function drop_handler(event) {
 
     fetch('/upload',{method:'POST', body:data})
     .then(
-      response => response.blob() //PDFの1ページ目が返ってくる
+      response => {
+          if(response.statusText == 'OK'){
+          console.log(response);
+          let response_data = response.blob()
+          console.log(response_data);
+          return response_data;//PDFの1ページ目が返ってくる
+          }
+      }
     ).then(
         blob => {
             //レスポンスが返ってきた後のhtmlを作成 
-            
-            let url_page1 = URL.createObjectURL(blob);
-            let EmbedPDF = ElementWithAttList("embed",[
-                ["src", url_page1], ["type", "application/pdf"],["width", "100%"],["height","80%"]
-            ]);
+            console.log(blob);
+            if(blob.type == "text/plain"){
+                console.log(blob.stream());
+                var reader = new FileReader();
+                reader.onload = function(){
+                    document.getElementById("message").innerHTML = reader.result;
+                }
+                reader.readAsText(blob);
+            }
 
-            let BackButton = ElementWithAttList("a", [
-                ["class", "btn btn-light"], 
-                ["style", "margin-top:5%;"],
-                ["onclick", "back();"]
-            ]);
-            let BackButton_image = ElementWithAttList("img", [
-                ["src", "/static/turnback.png"], 
-                ["height", "20"], ["width", "30"]
-            ]);
-            BackButton.appendChild(BackButton_image);
+            if(blob.type == "application/pdf"){
+                let url_page1 = URL.createObjectURL(blob);
+                let EmbedPDF = ElementWithAttList("embed",[
+                    ["src", url_page1], ["type", "application/pdf"],["width", "100%"],["height","80%"]
+                ]);
 
-            let DownloadButton = ElementWithAttList("button", [
-                ["class", "btn btn-outline-secondary btn-sm"], 
-                ["style", "position:absolute; transform:translate(-50%,0%); left:50%; margin-top:5%; "], 
-                ["onclick", "download();"]
-            ]);               
-            DownloadButton.appendChild(document.createTextNode("小冊子をダウンロード"));
+                let BackButton = ElementWithAttList("a", [
+                    ["class", "btn btn-light"], 
+                    ["style", "margin-top:5%;"],
+                    ["onclick", "back();"]
+                ]);
+                let BackButton_image = ElementWithAttList("img", [
+                    ["src", "/static/turnback.png"], 
+                    ["height", "20"], ["width", "30"]
+                ]);
+                BackButton.appendChild(BackButton_image);
 
-            let form = document.getElementById("upload_form");
-            form.innerHTML = "";
-            form.appendChild(EmbedPDF);
-            form.appendChild(BackButton);
-            form.appendChild(DownloadButton);
-            console.log("button is created");
+                let DownloadButton = ElementWithAttList("button", [
+                    ["class", "btn btn-outline-secondary btn-sm"], 
+                    ["style", "position:absolute; transform:translate(-50%,0%); left:50%; margin-top:5%; "], 
+                    ["onclick", "download();"]
+                ]);               
+                DownloadButton.appendChild(document.createTextNode("小冊子をダウンロード"));
+
+                let form = document.getElementById("upload_form");
+                form.innerHTML = "";
+                form.appendChild(EmbedPDF);
+                form.appendChild(BackButton);
+                form.appendChild(DownloadButton);
+                console.log("button is created");
+            }
         }
         
     ).catch(
@@ -97,7 +115,7 @@ function download(){
 
     //ダウンロードを行う
     let download_form = new FormData();
-    download_form.set('filename', 'booklet_'+ upload_filename);
+    download_form.set('filename', upload_filename);
 
     fetch('/download',{method:'POST', body: download_form})
     .then(
