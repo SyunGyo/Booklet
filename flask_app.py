@@ -1,6 +1,6 @@
 from flask import Flask, make_response, request, redirect, render_template
 from PyPDF2 import PdfFileReader
-import PDF_To_Booklet as PTB
+import PdfToBooklet as PTB
 import os
 
 app = Flask(__name__)

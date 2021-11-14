@@ -91,9 +91,7 @@ function drop_handler(event) {
             }
         }
         
-    ).catch(
-        //error => console.error(error);
-    );
+    )
     
 }
 
@@ -130,11 +128,12 @@ function download(){
             ]);
             download_button.click();
             refresh_file(upload_filename);
+            //初期画面へ遷移
+            document.getElementById("message").innerHTML = "PDFをドラッグ&ドロップ";
         }
     )
     
-    //初期画面へ遷移
-    document.getElementById("message").innerHTML = "PDFをドラッグ&ドロップ";
+    
 }
 
 function refresh_file(delete_filename){
