@@ -98,7 +98,8 @@ function drop_handler(event) {
 }
 
 function back(){
-    $("#upload_form").load("/static/drag&drop.html")
+    refresh_file(upload_filename);
+    $("#upload_form").load("/static/drag&drop.html");
 }
 
 function download(){
