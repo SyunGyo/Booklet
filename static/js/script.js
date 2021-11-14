@@ -143,6 +143,7 @@ function refresh_file(delete_filename){
     fetch('/refresh',{method:'POST', body:delete_formdata});
 }
 
+
 $(window).on('beforeunload',function(event){
     event.preventDefault();
     refresh_file(upload_filename);
