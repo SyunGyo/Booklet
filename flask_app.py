@@ -16,28 +16,29 @@ def index_html():
 
 @app.route('/upload', methods=['POST'])
 def save_file():
-    file = request.files['file']
-    refresh(file.filename)
+    uploaded_file = request.files['file']
+    refresh(uploaded_file.filename)
 
-    upload_path = pdf_dir + '/' + file.filename
-    file.save(upload_path)   
+    upload_path = pdf_dir + '/' + uploaded_file.filename
+    uploaded_file.save(upload_path)   
 
     response = make_response()
     if(PdfFileReader(upload_path).isEncrypted):        
         response.data = "暗号化されています"
         response.mimetype = "text/plain"
-        refresh(file.filename)    
+        refresh(uploaded_file.filename)    
     else:
         try:
-            PTB.Make_Thumb(upload_path, pdf_dir + '/thumb_' + file.filename)
-            PTB.Make_Booklet(upload_path, pdf_dir + '/booklet_' + file.filename)
+            PTB.Make_Thumb(upload_path, pdf_dir + '/thumb_' + uploaded_file.filename)
+            PTB.Make_Booklet(upload_path, pdf_dir + '/booklet_' + uploaded_file.filename)
+            
                 #PDFの1ページ目をサムネイルとして送りかえす
-            response.data = open(pdf_dir + '/thumb_' + file.filename,"rb").read()
+            response.data = open(pdf_dir + '/thumb_' + uploaded_file.filename,"rb").read()
             response.mimetype = "application/pdf"
         except:
             response.data = "エラー"
             response.mimetype = "text/plain"
-            refresh(file.filename) 
+            refresh(uploaded_file.filename) 
 
     return response
 

@@ -53,7 +53,15 @@ function drop_handler(event) {
                 console.log(blob.stream());
                 var reader = new FileReader();
                 reader.onload = function(){
-                    document.getElementById("message").innerHTML = reader.result;
+                    document.getElementById("message").innerHTML = "";
+                    let message1 = document.createElement("p"); let message2 = document.createElement("p");
+                    message1.innerHTML = reader.result;
+                    message1.setAttribute("class", "lead");
+                    message2.innerHTML = "違うファイルをドロップしてください";
+                    message2.setAttribute("class", "lead");
+
+                    document.getElementById("message").appendChild(message1);
+                    document.getElementById("message").appendChild(message2);
                 }
                 reader.readAsText(blob);
             }
