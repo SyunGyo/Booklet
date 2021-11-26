@@ -42,13 +42,13 @@ function drop_handler(event) {
           console.log(response);
           let response_data = response.blob()
           console.log(response_data);
-          return response_data;//PDFの1ページ目が返ってくる
+          return response_data;//PDFの1ページ目もしくはエラーメッセージが返ってくる
           }
       }
     ).then(
         blob => {
-            //レスポンスが返ってきた後のhtmlを作成 
             console.log(blob);
+            //PDFの編集が失敗した場合
             if(blob.type == "text/plain"){
                 console.log(blob.stream());
                 var reader = new FileReader();
@@ -65,7 +65,8 @@ function drop_handler(event) {
                 }
                 reader.readAsText(blob);
             }
-
+            
+            //PDFの編集が成功した場合
             if(blob.type == "application/pdf"){
                 let url_page1 = URL.createObjectURL(blob);
                 let EmbedPDF = ElementWithAttList("embed",[
@@ -97,15 +98,24 @@ function drop_handler(event) {
                 form.appendChild(DownloadButton);
                 console.log("button is created");
             }
-        }
-        
-    )
+        }      
+    ).catch(error => {
+        document.getElementById("message").innerHTML = "";
+        let message1 = document.createElement("p"); let message2 = document.createElement("p");
+        message1.innerHTML = "エラー";
+        message1.setAttribute("class", "lead");
+        message2.innerHTML = "違うファイルをドロップしてください";
+        message2.setAttribute("class", "lead");
+
+        document.getElementById("message").appendChild(message1);
+        document.getElementById("message").appendChild(message2);   
+    });
     
 }
 
 function back(){
     refresh_file(upload_filename);
-    $("#upload_form").load("/static/drag&drop.html");
+    $("#upload_form").load("/static/initial.html");
 }
 
 function download(){
@@ -150,7 +160,6 @@ function refresh_file(delete_filename){
 
     fetch('/refresh',{method:'POST', body:delete_formdata});
 }
-
 
 $(window).on('beforeunload',function(event){
     event.preventDefault();
